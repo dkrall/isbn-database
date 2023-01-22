@@ -1,0 +1,4 @@
+*.o
+main
+jsons/*
+json.hpp
