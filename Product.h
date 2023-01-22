@@ -3,6 +3,8 @@
 
 #include <string>
 #include <iostream>
+#include <list>
+#include <regex>
 #include "json.hpp"
 
 using namespace std;
@@ -12,9 +14,14 @@ class Product
 {
   private:
     double isbn;
-    json full_json;
+    string title;
+    string category;
+    string description;
+    string image_urls;
+    string size;
 
     string doubleToString(double double_to_convert);
+    string sanitizeString(string string_to_sanitize);
 
   public:
     Product();
@@ -22,6 +29,7 @@ class Product
 
     void print_full_json();
     double getIsbn();
+    string getCsv();
     string toString();
 };
 

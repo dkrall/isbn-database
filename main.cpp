@@ -17,7 +17,6 @@ Product getProductByIsbn(list<Product> product_list, double isbn){
   Product product_with_correct_isbn;
 
   for(it = product_list.begin(); it != product_list.end(); it++){
-    cout << "current: " << (*it).getIsbn() << endl;
     bool is_isbn = (*it).getIsbn() == isbn;
     if(is_isbn) {
       product_with_correct_isbn = (*it);
@@ -52,6 +51,7 @@ void showMainMenu() {
   cout << endl << "Welcome to the ISBN database. JSONs have been loaded from the jsons directory." << endl;
   cout << "Please select one of the following options by typing the corresponding character:" << endl;
   cout << "v: view details for an entry in the terminal" << endl;
+  cout << "c: write all data to csv" << endl;
   cout << "e: exit program" << endl;
   cout << "Please enter selection: ";
 }
@@ -85,6 +85,28 @@ void viewEntry(list<Product> product_list) {
   }
 }
 
+// TODO: Add menu with options, including options to print out manga in the order they appear on my shelves or in alphabetical order.
+void writeToCsv(list<Product> product_list) {
+  ofstream output_file;
+  string filename;
+  string csvHeaders = "Title,ISBN,Description,Image URLs,Size,Category\n";
+
+  cout << "Please enter filename: ";
+  cin >> filename;
+  filename = "output/" + filename;
+  output_file.open(filename);
+  output_file << csvHeaders;
+
+  list<Product>::iterator it;
+
+  for(it = product_list.begin(); it != product_list.end(); it++){
+    output_file << (*it).getCsv();
+  }
+
+  output_file.close();
+  cout << "Successfully created " << filename << endl;
+}
+
 
 int main() {
   char choice;
@@ -114,6 +136,9 @@ int main() {
     switch(choice) {
       case 'v':
         viewEntry(product_list);
+        break;
+      case 'c':
+        writeToCsv(product_list);
         break;
       case 'e':
         break;
