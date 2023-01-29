@@ -6,45 +6,12 @@
 #include <filesystem>
 #include <dirent.h>
 #include <sys/types.h>
+#include <map>
 #include "json.hpp"
 #include "Product.h"
+#include "ProductCategory.h"
 using namespace std;
 using json = nlohmann::json;
-
-// Given a list of products and an isbn number, return the product from that list.
-Product getProductByIsbn(list<Product> product_list, double isbn){
-  list<Product>::iterator it;
-  Product product_with_correct_isbn;
-
-  for(it = product_list.begin(); it != product_list.end(); it++){
-    bool is_isbn = (*it).getIsbn() == isbn;
-    if(is_isbn) {
-      product_with_correct_isbn = (*it);
-    }
-  }
-
-  return product_with_correct_isbn;
-}
-
-// Get the list of json files in the jsons directory and return a list of strings containing those filenames.
-list<string> getListOfJsonFiles(){
-  list<string>list_of_json_files;
-  DIR *dir;
-  struct dirent *file;
-  dir = opendir("./jsons");
-  if (dir) {
-    while ((file = readdir(dir)) != NULL) {
-      string file_string(file->d_name);
-
-      if ((file_string).find(".json") != string::npos) {
-        list_of_json_files.push_back(file_string);
-      }
-    }
-    closedir(dir);
-  }
-
-  return list_of_json_files;
-}
 
 // Display the main menu options by printing them line-by-line to the screen.
 void showMainMenu() {
@@ -57,7 +24,7 @@ void showMainMenu() {
 }
 
 
-void viewEntry(list<Product> product_list) {
+void viewEntry(ProductCategory product_list) {
   string isbn_string;
   double isbn;
   Product product;
@@ -74,7 +41,7 @@ void viewEntry(list<Product> product_list) {
       cout << "Please enter full isbn: ";
       cin >> isbn_string;
       isbn = stod(isbn_string);
-      product = getProductByIsbn(product_list, isbn);
+      product = product_list.getProductByIsbn(isbn);
       cout << product.toString();
       break;
     case 'e':
@@ -85,49 +52,67 @@ void viewEntry(list<Product> product_list) {
   }
 }
 
-// TODO: Add menu with options, including options to print out manga in the order they appear on my shelves or in alphabetical order.
-void writeToCsv(list<Product> product_list) {
-  ofstream output_file;
-  string filename;
-  string csvHeaders = "Title,ISBN,Description,Image URLs,Size,Category\n";
+void showCategoryMenu(list<string> json_folder_names) {
+  list<string>::iterator it;
+  cout << "The following datasets have been loaded into the ISBN Database:" << endl;
 
-  cout << "Please enter filename: ";
-  cin >> filename;
-  filename = "output/" + filename;
-  output_file.open(filename);
-  output_file << csvHeaders;
-
-  list<Product>::iterator it;
-
-  for(it = product_list.begin(); it != product_list.end(); it++){
-    output_file << (*it).getCsv();
+  for(it = json_folder_names.begin(); it != json_folder_names.end(); it++){
+    cout << (*it) << endl;
   }
 
-  output_file.close();
-  cout << "Successfully created " << filename << endl;
+  cout << "Type the name of the dataset you'd like to access:";
 }
 
+ProductCategory getProductCategoryByName(list<string> json_folder_names, map<string, ProductCategory> categoryMap) {
+  bool categoryFound;
+  string selectedCategoryName;
+  ProductCategory selectedDataset;
+
+  showCategoryMenu(json_folder_names);
+  cin >> selectedCategoryName;
+  categoryFound = find(json_folder_names.begin(), json_folder_names.end(), selectedCategoryName) != json_folder_names.end();
+
+  while (!categoryFound) {
+    cout << "Dataset not found. Please reenter:";
+    cin >> selectedCategoryName;
+    categoryFound = find(json_folder_names.begin(), json_folder_names.end(), selectedCategoryName) != json_folder_names.end();
+  }
+
+  selectedDataset = categoryMap[selectedCategoryName];
+  cout << "Loaded " << selectedCategoryName << " dataset." << endl;
+  return(selectedDataset);
+}
 
 int main() {
   char choice;
-  list<Product>product_list;
-  list<string>::iterator string_iterator;
-  list<string> list_of_json_files = getListOfJsonFiles();
+  list<string> json_folder_names;
+  list<ProductCategory> productCategoryList;
+  const char* json_parent_dir = "./jsons/";
+  DIR *dir = opendir(json_parent_dir);
+  map<string, ProductCategory> categoryMap;
+  ProductCategory selectedDataset;
+  bool categoryFound;
 
-  for(string_iterator = list_of_json_files.begin(); string_iterator != list_of_json_files.end(); string_iterator++){
-    string line;
-    ifstream file("jsons/" + (*string_iterator));
-    if(file.is_open()) {
-      // Expect only one line to be returned.
-      getline(file, line);
-      Product product_from_json = Product(line);
-      product_list.push_back(product_from_json);
-      cout << "Loaded " << (*string_iterator) << " successfully." << endl;
-      file.close();
-    } else {
-      cout << "Failed to open file. " << *string_iterator << endl;
+  struct dirent *entry = readdir(dir);
+
+  while (entry != NULL) {
+    if (entry->d_type == DT_DIR && (entry->d_name)[0] != '.') {
+      string folder_string(entry->d_name);
+      json_folder_names.push_back(folder_string);
     }
+
+    entry = readdir(dir);
   }
+
+  closedir(dir);
+
+  list<string>::iterator it;
+
+  for(it = json_folder_names.begin(); it != json_folder_names.end(); it++){
+    categoryMap[*it] = ProductCategory(*it);
+  }
+
+  selectedDataset = getProductCategoryByName(json_folder_names, categoryMap);
 
   // TODO: This menu loop will eventually have more options. The text-based menu may eventually be replaced with a GUI.
   while (choice != 'e') {
@@ -135,10 +120,10 @@ int main() {
     cin >> choice;
     switch(choice) {
       case 'v':
-        viewEntry(product_list);
+        viewEntry(selectedDataset);
         break;
       case 'c':
-        writeToCsv(product_list);
+        selectedDataset.writeToCsv();
         break;
       case 'e':
         break;

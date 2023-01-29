@@ -4,3 +4,5 @@ jsons/*
 json.hpp
 main
 output/*
+completed_isbns/*
+errored_isbns/*

@@ -15,12 +15,13 @@ Product::Product(string json_string)
   string isbn_string = product["barcode_number"].get<string>();
   isbn = stod(isbn_string);
 
+
   title = product["title"].get<string>();
   category = product["category"].get<string>();
   description = product["description"].get<string>();
-  size = product["size"].get<string>();
 
-  if (sizeof(product["images"]) > 0) {
+  size = product["size"].get<string>();
+  if (product["images"].size() > 0) {
     image_urls = product["images"][0].get<string>();
   }
 }
