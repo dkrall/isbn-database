@@ -19,6 +19,7 @@ void showMainMenu() {
   cout << "Please select one of the following options by typing the corresponding character:" << endl;
   cout << "v: view details for an entry in the terminal" << endl;
   cout << "c: write all data to csv" << endl;
+  cout << "a: add a new entry" << endl;
   cout << "e: exit program" << endl;
   cout << "Please enter selection: ";
 }
@@ -60,7 +61,7 @@ void showCategoryMenu(list<string> json_folder_names) {
     cout << (*it) << endl;
   }
 
-  cout << "Type the name of the dataset you'd like to access:";
+  cout << "Type the name of the dataset you'd like to access: ";
 }
 
 ProductCategory getProductCategoryByName(list<string> json_folder_names, map<string, ProductCategory> categoryMap) {
@@ -73,7 +74,7 @@ ProductCategory getProductCategoryByName(list<string> json_folder_names, map<str
   categoryFound = find(json_folder_names.begin(), json_folder_names.end(), selectedCategoryName) != json_folder_names.end();
 
   while (!categoryFound) {
-    cout << "Dataset not found. Please reenter:";
+    cout << "Dataset not found. Please reenter: ";
     cin >> selectedCategoryName;
     categoryFound = find(json_folder_names.begin(), json_folder_names.end(), selectedCategoryName) != json_folder_names.end();
   }
@@ -124,6 +125,9 @@ int main() {
         break;
       case 'c':
         selectedDataset.writeToCsv();
+        break;
+      case 'a':
+        selectedDataset.addEntry();
         break;
       case 'e':
         break;
