@@ -16,26 +16,26 @@ Contains one subfolder for each dataset. Within that subfolder, one .json file e
 When exporting to CSV, the output CSV files are written here.
 
 ### Sample Folder structure:
-completed_isbns
-  animeDiscs.txt
-  gamesSwitch.txt
-  manga.txt
-errored_isbns
-  animeDiscs.txt
-  gamesSwitch.txt
-  manga.txt
-jsons
-  animeDiscs
-    animeDiscs_000000000001.json
-    animeDiscs_000000000002.json
-  gamesSwitch
-    gamesSwitch_000000000001.json
-    gamesSwitch_000000000002.json
-  manga
-    manga_000000000001.json
-    manga_000000000002.json
-output
-json.hpp (downloaded from https://json.nlohmann.me/releases)
+- completed_isbns
+  - animeDiscs.txt
+  - gamesSwitch.txt
+  - manga.txt
+- errored_isbns
+  - animeDiscs.txt
+  - gamesSwitch.txt
+  - manga.txt
+- jsons
+  - animeDiscs
+    - animeDiscs_000000000001.json
+    - animeDiscs_000000000002.json
+  - gamesSwitch
+    - gamesSwitch_000000000001.json
+    - gamesSwitch_000000000002.json
+  - manga
+    - manga_000000000001.json
+    - manga_000000000002.json
+- output
+- json.hpp (downloaded from https://json.nlohmann.me/releases)
 
 ## Usage
 
