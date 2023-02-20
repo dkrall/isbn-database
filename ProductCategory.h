@@ -18,13 +18,13 @@ class ProductCategory
     list<Product> product_list;
     list<string> list_of_json_files;
     void populateListOfJsonFiles();
-    void populateProducts(string folderPath);
+    void populateProducts(string folderPath, bool isVerbose);
     string folderPath;
     string category_name;
 
   public:
     ProductCategory();
-    ProductCategory(string folderName);
+    ProductCategory(string folderName, bool isVerbose);
     Product getProductByIsbn(double isbn);
     void writeToCsv();
     void addEntry();

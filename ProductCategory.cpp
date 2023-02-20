@@ -5,12 +5,12 @@ ProductCategory::ProductCategory()
 
 }
 
-ProductCategory::ProductCategory(string folderName)
+ProductCategory::ProductCategory(string folderName, bool isVerbose)
 {
   folderPath = "./jsons/" + folderName;
   category_name = folderName;
   populateListOfJsonFiles();
-  populateProducts(folderPath + "/");
+  populateProducts(folderPath + "/", isVerbose);
 }
 
 // Get the list of json files in the jsons directory and return a list of strings containing those filenames.
@@ -35,7 +35,7 @@ void ProductCategory::populateListOfJsonFiles()
   list_of_json_files = json_filenames;
 }
 
-void ProductCategory::populateProducts(string folderPath)
+void ProductCategory::populateProducts(string folderPath, bool isVerbose)
 {
   list<Product> product_list_from_files;
   list<string>::iterator string_iterator;
@@ -43,13 +43,21 @@ void ProductCategory::populateProducts(string folderPath)
   for(string_iterator = list_of_json_files.begin(); string_iterator != list_of_json_files.end(); string_iterator++){
     string line;
     ifstream file(folderPath + (*string_iterator));
-    cout << folderPath + (*string_iterator) << endl;//TODO: Remove
+
+    if (isVerbose) {
+      cout << folderPath + (*string_iterator) << endl;
+    }
+
     if(file.is_open()) {
       // Expect only one line to be returned.
       getline(file, line);
       Product product_from_json = Product(line);
       product_list_from_files.push_back(product_from_json);
-      cout << "Loaded " << folderPath + (*string_iterator) << " successfully." << endl;
+
+      if (isVerbose) {
+        cout << "Loaded " << folderPath + (*string_iterator) << " successfully." << endl;
+      }
+
       file.close();
     } else {
       cout << "Failed to open file. " << folderPath + (*string_iterator) << endl;

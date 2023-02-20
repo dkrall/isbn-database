@@ -20,6 +20,7 @@ void showMainMenu() {
   cout << "v: view details for an entry in the terminal" << endl;
   cout << "c: write all data to csv" << endl;
   cout << "a: add a new entry" << endl;
+  cout << "d: select a different dataset" << endl;
   cout << "e: exit program" << endl;
   cout << "Please enter selection: ";
 }
@@ -84,7 +85,16 @@ ProductCategory getProductCategoryByName(list<string> json_folder_names, map<str
   return(selectedDataset);
 }
 
-int main() {
+bool isFlagInArgs(int argc, const char* argv[], string flag) {
+  for (int x = 0; x < argc; x++) {
+    if (string(argv[x]) == flag) {
+      return true;
+    }
+  }
+  return false;
+}
+
+int main(int argc, const char* argv[]) {
   char choice;
   list<string> json_folder_names;
   list<ProductCategory> productCategoryList;
@@ -93,6 +103,7 @@ int main() {
   map<string, ProductCategory> categoryMap;
   ProductCategory selectedDataset;
   bool categoryFound;
+  bool isVerbose = isFlagInArgs(argc, argv, "-v") || isFlagInArgs(argc, argv, "-verbose");
 
   struct dirent *entry = readdir(dir);
 
@@ -110,7 +121,7 @@ int main() {
   list<string>::iterator it;
 
   for(it = json_folder_names.begin(); it != json_folder_names.end(); it++){
-    categoryMap[*it] = ProductCategory(*it);
+    categoryMap[*it] = ProductCategory(*it, isVerbose);
   }
 
   selectedDataset = getProductCategoryByName(json_folder_names, categoryMap);
@@ -128,6 +139,9 @@ int main() {
         break;
       case 'a':
         selectedDataset.addEntry();
+        break;
+      case 'd':
+        selectedDataset = getProductCategoryByName(json_folder_names, categoryMap);
         break;
       case 'e':
         break;
