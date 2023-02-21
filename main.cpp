@@ -52,7 +52,6 @@ void viewEntry(ProductCategory product_list) {
     case 's':
       getline(cin, search_string);// Clear input buffer
       cout << "Please enter text to search (case insensitive): ";
-      cin >> search_string;
       getline(cin, search_string);
       product_list.searchProducts(search_string);
       break;
