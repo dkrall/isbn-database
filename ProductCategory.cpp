@@ -148,3 +148,63 @@ void ProductCategory::addEntry() {
   file << json_string;
   file.close();
 }
+
+void ProductCategory::printSearchResults(list<Product> search_results, char mode) {
+  list<Product>::iterator it;
+  int counter = 1;
+  cout << "------------------------------------" << endl;
+  cout << "---------- Search results ----------" << endl;
+  cout << "------------------------------------" << endl;
+
+  for(it = search_results.begin(); it != search_results.end(); it++){
+    switch(mode) {
+      case 'i':
+        cout << (*it).doubleToString((*it).getIsbn()) << endl;
+        break;
+      case 't':
+        cout << (*it).getTitle() << endl;
+        break;
+      case 'a':
+        cout << "----- Entry " << counter << " -----" << endl;
+        cout << (*it).toString() << endl;
+        break;
+      default:
+        cout << "Unable to interpret. No results can be displayed" << endl;
+    }
+    counter++;
+  }
+
+  cout << "------------------------------------" << endl;
+  cout << "----------                ----------" << endl;
+  cout << "------------------------------------" << endl;
+}
+
+void ProductCategory::searchProducts(string search_string) {
+  list<Product> search_results;
+  list<Product>::iterator it;
+  char choice;
+  string valid_choices = "ita";
+
+  for(it = product_list.begin(); it != product_list.end(); it++){
+    bool is_string_present_in_title_or_description = (*it).isStringInTitleOrDesc(search_string);
+    if(is_string_present_in_title_or_description) {
+      search_results.push_back(*it);
+    }
+  }
+
+  cout << endl << "Found " << search_results.size() << " results." << endl;
+  if (search_results.size() > 0) {
+    cout << "How would you like to view these results?" << endl;
+    cout << "i: View ISBN list only." << endl;
+    cout << "t: View title only." << endl;
+    cout << "a: View all data for each entry." << endl;
+    cout << "e: exit submenu and return to main menu." << endl;
+    cout << "Please enter selection: ";
+
+    cin >> choice;
+    if (valid_choices.find(choice) != string::npos) {
+      printSearchResults(search_results, choice);
+    }
+  }
+  cout << "Returning to main menu." << endl;
+}

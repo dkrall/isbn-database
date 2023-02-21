@@ -28,6 +28,8 @@ class ProductCategory
     Product getProductByIsbn(double isbn);
     void writeToCsv();
     void addEntry();
+    void printSearchResults(list<Product> search_results, char mode);
+    void searchProducts(string search_string);
 };
 
 #endif
