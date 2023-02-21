@@ -28,12 +28,15 @@ void showMainMenu() {
 
 void viewEntry(ProductCategory product_list) {
   string isbn_string;
+  string search_string;
   double isbn;
   Product product;
+
   char choice;
 
-  cout << "How do you want to search for a product?" << endl;
+  cout << endl << "How do you want to search for a product?" << endl;
   cout << "i: enter full isbn." << endl;
+  cout << "s: search for text in title or description." << endl;
   cout << "e: exit submenu and return to main menu." << endl;
   cout << "Please enter selection: ";
 
@@ -45,6 +48,13 @@ void viewEntry(ProductCategory product_list) {
       isbn = stod(isbn_string);
       product = product_list.getProductByIsbn(isbn);
       cout << product.toString();
+      break;
+    case 's':
+      getline(cin, search_string);// Clear input buffer
+      cout << "Please enter text to search (case insensitive): ";
+      cin >> search_string;
+      getline(cin, search_string);
+      product_list.searchProducts(search_string);
       break;
     case 'e':
       cout << "Returning to main menu." << endl;

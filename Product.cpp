@@ -30,7 +30,9 @@ double Product::getIsbn() {
   return isbn;
 }
 
-// TODO: Add functionality to search by part of title.
+string Product::getTitle() {
+  return title;
+}
 
 string Product::doubleToString(double double_to_convert) {
   string doubleAsString = to_string(double_to_convert);
@@ -63,4 +65,16 @@ string Product::toString() {
   object_contents = object_contents + "size: " + size + "\n";
 
   return object_contents;
+}
+
+bool Product::isStringInTitleOrDesc(string search_string) {
+  string search_string_t = search_string;
+  string title_t = title;
+  string description_t = description;
+  transform(search_string_t.begin(), search_string_t.end(), search_string_t.begin(), ::toupper);
+  transform(title_t.begin(), title_t.end(), title_t.begin(), ::toupper);
+  transform(description_t.begin(), description_t.end(), description_t.begin(), ::toupper);
+  bool isStringInTitle = title_t.find(search_string_t) != string::npos;
+  bool isStringInDescription = description_t.find(search_string_t) != string::npos;
+  return isStringInTitle || isStringInDescription;
 }

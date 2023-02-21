@@ -1,6 +1,7 @@
 #ifndef PRODUCT_H
 #define PRODUCT_H
 
+#include <algorithm>
 #include <string>
 #include <iostream>
 #include <list>
@@ -20,7 +21,6 @@ class Product
     string image_urls;
     string size;
 
-    string doubleToString(double double_to_convert);
     string sanitizeString(string string_to_sanitize);
 
   public:
@@ -29,8 +29,11 @@ class Product
 
     void print_full_json();
     double getIsbn();
+    string getTitle();
     string getCsv();
     string toString();
+    bool isStringInTitleOrDesc(string search_string);
+    string doubleToString(double double_to_convert);
 };
 
 #endif
