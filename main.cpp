@@ -25,7 +25,7 @@ void showMainMenu() {
   cout << "Please enter selection: ";
 }
 
-
+// TODO: Add option to add a description to an existing entry. Should warn if description already exists.
 void viewEntry(ProductCategory product_list) {
   string isbn_string;
   string search_string;

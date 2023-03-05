@@ -46,8 +46,8 @@ string Product::sanitizeString(string string_to_sanitize) {
 string Product::getCsv() {
   string csv = sanitizeString(title) + ",";
   csv = csv + doubleToString(isbn) + ",";
-  csv = csv + sanitizeString(description) + ",";
   csv = csv + sanitizeString(image_urls) + ",";
+  csv = csv + sanitizeString(description) + ",";
   csv = csv + sanitizeString(size) + ",";
   csv = csv + sanitizeString(category) + "\n";
   return csv;

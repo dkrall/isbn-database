@@ -63,6 +63,8 @@ void ProductCategory::populateProducts(string folderPath, bool isVerbose)
       cout << "Failed to open file. " << folderPath + (*string_iterator) << endl;
     }
   }
+  product_list_from_files.sort(&ProductCategory::isTitleFirstInAlphabet);
+
   product_list = product_list_from_files;
 }
 
@@ -81,11 +83,16 @@ Product ProductCategory::getProductByIsbn(double isbn){
   return product_with_correct_isbn;
 }
 
+// Helper function passed to sort list of products.
+bool ProductCategory::isTitleFirstInAlphabet(Product& first, Product& second) {
+  return first.getTitle().compare(second.getTitle()) < 0;
+}
+
 // TODO: Add menu with options, including options to print out manga in the order they appear on my shelves or in alphabetical order.
 void ProductCategory::writeToCsv() {
   ofstream output_file;
   string filename;
-  string csvHeaders = "Title,ISBN,Description,Image URLs,Size,Category\n";
+  string csvHeaders = "Title,ISBN,Image URLs,Description,Size,Category\n";
 
   cout << "Please enter filename: ";
   cin >> filename;
@@ -106,16 +113,29 @@ void ProductCategory::writeToCsv() {
 void ProductCategory::addEntry() {
   Product product_from_json;
   string barcode_number;
+  double barcode_number_converted;
   string barcode_formats;
   string title;
   string manufacturer;
   string image;
   list<Product> product_list_temp = product_list;
+  Product product_for_isbn;
   string json_string = "{\"products\":[{\"barcode_number\":\"";
   getline(cin, barcode_number);// Get current line so it does not interrupt later operations. barcode_number will be overwritten.
 
   cout << "Input ISBN Number: ";
   getline(cin, barcode_number);
+
+  barcode_number_converted = stod(barcode_number);
+  product_for_isbn = ProductCategory::getProductByIsbn(barcode_number_converted);
+  while (product_for_isbn.getIsbn() == barcode_number_converted) {
+    cout << "This ISBN already exists! Please try another: ";
+    // TODO: Add logic to print the highest manually-added ISBN in the database. Possibly add ISBN auto-generating as a default when no ISBN is added.
+    getline(cin, barcode_number);
+    barcode_number_converted = stod(barcode_number);
+    product_for_isbn = ProductCategory::getProductByIsbn(barcode_number_converted);
+  }
+
   json_string = json_string + barcode_number + "\",\"barcode_formats\":\"";
 
   cout << "Input Barcode Formats: ";

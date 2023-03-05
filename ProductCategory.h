@@ -21,6 +21,7 @@ class ProductCategory
     void populateProducts(string folderPath, bool isVerbose);
     string folderPath;
     string category_name;
+    static bool isTitleFirstInAlphabet(Product& first, Product& second);
 
   public:
     ProductCategory();
