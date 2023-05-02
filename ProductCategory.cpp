@@ -94,6 +94,7 @@ void ProductCategory::writeToCsv() {
   string filename;
   string csvHeaders = "Title,ISBN,Image URLs,Description,Size,Category\n";
 
+  // TODO: Add default filename <dataset>_<date>.csv
   cout << "Please enter filename: ";
   cin >> filename;
   filename = "output/" + filename;
