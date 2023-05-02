@@ -120,6 +120,7 @@ int main(int argc, const char* argv[]) {
     if (entry->d_type == DT_DIR && (entry->d_name)[0] != '.') {
       string folder_string(entry->d_name);
       json_folder_names.push_back(folder_string);
+      // TODO: Sort these folder names before displaying them.
     }
 
     entry = readdir(dir);
