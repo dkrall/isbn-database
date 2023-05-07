@@ -8,6 +8,7 @@
 #include <iostream>
 #include <dirent.h>
 #include <filesystem>
+#include <ctime>
 #include "Product.h"
 
 using namespace std;
@@ -21,7 +22,9 @@ class ProductCategory
     void populateProducts(string folderPath, bool isVerbose);
     string folderPath;
     string category_name;
+    double max_manual_isbn;
     static bool isTitleFirstInAlphabet(Product& first, Product& second);
+    static bool isYN(string prompt);
 
   public:
     ProductCategory();
