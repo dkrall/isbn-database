@@ -24,6 +24,21 @@ Product::Product(string json_string)
   if (product["images"].size() > 0) {
     image_urls = product["images"][0].get<string>();
   }
+
+  series_name = "";
+  if (to_string(product["series_name"]) != "null") {
+    series_name = product["series_name"].get<string>();
+  }
+
+  volume_number = -1;
+  if (to_string(product["volume_number"]) != "null" && stoi(product["volume_number"].get<string>()) > -1) {
+    volume_number = stoi(product["volume_number"].get<string>());
+  }
+
+  format = "";
+  if (to_string(product["format"]) != "null") {
+    format = product["format"].get<string>();
+  }
 }
 
 double Product::getIsbn() {
@@ -32,6 +47,10 @@ double Product::getIsbn() {
 
 string Product::getTitle() {
   return title;
+}
+
+string Product::getSeriesTitle() {
+  return series_name;
 }
 
 string Product::doubleToString(double double_to_convert) {
@@ -44,8 +63,17 @@ string Product::sanitizeString(string string_to_sanitize) {
 }
 
 string Product::getCsv() {
+  string volume_number_string = "";
+
+  if (volume_number > -1) {
+    volume_number_string = to_string(volume_number);
+  }
+
   string csv = sanitizeString(title) + ",";
   csv = csv + doubleToString(isbn) + ",";
+  csv = csv + sanitizeString(series_name) + ",";
+  csv = csv + sanitizeString(volume_number_string) + ",";
+  csv = csv + sanitizeString(format) + ",";
   csv = csv + sanitizeString(image_urls) + ",";
   csv = csv + sanitizeString(description) + ",";
   csv = csv + sanitizeString(size) + ",";
@@ -56,10 +84,18 @@ string Product::getCsv() {
 // TODO: Maybe add color to this text
 string Product::toString() {
   string object_contents;
+  string volume_number_string = "";
+
+  if (volume_number > -1) {
+    volume_number_string = to_string(volume_number);
+  }
 
   object_contents = "\nisbn: " + doubleToString(isbn) + "\n";
   object_contents = object_contents + "title: " + title + "\n";
   object_contents = object_contents + "category: " + category + "\n";
+  object_contents = object_contents + "series_name: " + series_name + "\n";
+  object_contents = object_contents + "volume_number: " + volume_number_string + "\n";
+  object_contents = object_contents + "format: " + format + "\n";
   object_contents = object_contents + "description: " + description + "\n";
   object_contents = object_contents + "image_urls: " + image_urls + "\n";
   object_contents = object_contents + "size: " + size + "\n";

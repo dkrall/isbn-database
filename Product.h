@@ -20,7 +20,10 @@ class Product
     string description;
     string image_urls;
     string size;
-    // TODO: Add fields for volume number and series. Series should be case insensitive and should prompt when
+    string series_name;
+    int volume_number;
+    string format;
+    // TODO: Series should prompt when
     // adding a volume to a new series so duplicate series are not created ("This series does not exist. Are you sure you want to create a new one?")
 
     string sanitizeString(string string_to_sanitize);
@@ -32,6 +35,7 @@ class Product
     void print_full_json();
     double getIsbn();
     string getTitle();
+    string getSeriesTitle();
     string getCsv();
     string toString();
     bool isStringInTitleOrDesc(string search_string);

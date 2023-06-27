@@ -1,4 +1,7 @@
 #include "ProductCategory.h"
+#include <iostream>
+#include <cctype>
+using namespace std;
 
 ProductCategory::ProductCategory()
 {
@@ -37,10 +40,10 @@ void ProductCategory::populateListOfJsonFiles()
 
 void ProductCategory::populateProducts(string folderPath, bool isVerbose)
 {
-  list<Product> product_list_from_files;
   list<string>::iterator string_iterator;
   max_manual_isbn = 0;
   double isbn;
+  string series_title;
 
   for(string_iterator = list_of_json_files.begin(); string_iterator != list_of_json_files.end(); string_iterator++){
     string line;
@@ -54,9 +57,14 @@ void ProductCategory::populateProducts(string folderPath, bool isVerbose)
       // Expect only one line to be returned.
       getline(file, line);
       Product product_from_json = Product(line);
-      product_list_from_files.push_back(product_from_json);
+      product_list.push_back(product_from_json);
 
       isbn = product_from_json.getIsbn();
+      series_title = product_from_json.getSeriesTitle();
+
+      if (!seriesTitleExists(series_title)) {
+        list_of_series_titles.push_back(series_title);
+      }
 
       if (isbn < 10000 && isbn > max_manual_isbn) {
         max_manual_isbn = isbn;
@@ -71,9 +79,13 @@ void ProductCategory::populateProducts(string folderPath, bool isVerbose)
       cout << "Failed to open file. " << folderPath + (*string_iterator) << endl;
     }
   }
-  product_list_from_files.sort(&ProductCategory::isTitleFirstInAlphabet);
 
-  product_list = product_list_from_files;
+  product_list.sort(&ProductCategory::isTitleFirstInAlphabet);
+  list_of_series_titles.sort(&ProductCategory::isStringFirstInAlphabet);
+}
+
+bool ProductCategory::seriesTitleExists(string series_title) {
+  return(find(list_of_series_titles.begin(), list_of_series_titles.end(), series_title) != list_of_series_titles.end());
 }
 
 // Given an isbn number, return the product from that list.
@@ -96,6 +108,11 @@ bool ProductCategory::isTitleFirstInAlphabet(Product& first, Product& second) {
   return first.getTitle().compare(second.getTitle()) < 0;
 }
 
+// Helper function passed to sort list of arbitrary strings.
+bool ProductCategory::isStringFirstInAlphabet(string& first, string& second) {
+  return first.compare(second) < 0;
+}
+
 // Helper function to interpret y/n inputs.
 bool ProductCategory::isYN(string prompt) {
   char yn = ' ';
@@ -115,7 +132,7 @@ void ProductCategory::writeToCsv() {
   int month;
   int year;
   ofstream output_file;
-  string csvHeaders = "Title,ISBN,Image URLs,Description,Size,Category\n";
+  string csvHeaders = "Title,ISBN,Series,Volume Number,Format,Image URLs,Description,Size,Category\n";
   string filename;
   time_t now;
   tm *ltm;
@@ -171,6 +188,9 @@ void ProductCategory::addEntry() {
   string title;
   string manufacturer;
   string image;
+  string volume_number;
+  string description;
+  char choice;
   list<Product> product_list_temp = product_list;
   Product product_for_isbn;
   bool is_auto_generate_isbn;
@@ -215,14 +235,49 @@ void ProductCategory::addEntry() {
 
   cout << "Input Manufacturer: ";
   getline(cin, manufacturer);
-  json_string = json_string + manufacturer + "\",\"brand\":\"\",\"contributors\":[],\"age_group\":\"\",\"ingredients\":\"\"";
+
+  if (category_name == "animeDiscs") {
+    json_string = json_string + manufacturer + "\",\"format\":\"";
+    cout << "Input Format (d: DVD, b: Blu-Ray, anything else: neither):";
+    cin >> choice;
+    switch(choice) {
+      case 'd':
+        cout << "Setting format as 'dvd'." << endl;
+        json_string = json_string + "dvd";
+        break;
+      case 'b':
+        cout << "Setting format as 'bluray'." << endl;
+        json_string = json_string + "bluray";
+        break;
+      default:
+        cout << "Setting format as 'Neither'." << endl;
+    }
+
+    getline(cin, volume_number); // Keep script from skipping ahead.
+  }
+
+  json_string = json_string + "\",\"series_name\":\"";
+  json_string = json_string + getSeriesTitleFromUser() + "\",\"volume_number\":\"";
+
+  cout << "Input Volume Number: ";
+  getline(cin, volume_number);
+
+  if (volume_number.length() < 1) {
+    volume_number = "-1";
+  }
+
+  json_string = json_string + volume_number + "\",\"brand\":\"\",\"contributors\":[],\"age_group\":\"\",\"ingredients\":\"\"";
   json_string = json_string + ",\"nutrition_facts\":\"\",\"energy_efficiency_class\":\"\",\"color\":\"\",\"gender\":\"\"";
-  json_string = json_string + ",\"material\":\"\",\"pattern\":\"\",\"format\":\"\",\"multipack\":\"\",\"size\":\"\",\"length\":\"\"";
-  json_string = json_string + ",\"width\":\"\",\"height\":\"\",\"weight\":\"\",\"release_date\":\"\",\"description\":\"\",\"features\":[],\"images\":[\"";
+  json_string = json_string + ",\"material\":\"\",\"pattern\":\"\",\"multipack\":\"\",\"size\":\"\",\"length\":\"\"";
+  json_string = json_string + ",\"width\":\"\",\"height\":\"\",\"weight\":\"\",\"release_date\":\"\",\"features\":[],\"images\":[\"";
 
   cout << "Input Image URL: ";
   getline(cin, image);
-  json_string = json_string + image + "\"],\"last_update\":\"\",\"stores\":[]}]}";
+  json_string = json_string + image + "\"],\"description\":\"";
+
+  cout << "Input Description: ";
+  getline(cin, description);
+  json_string = json_string + sanitizeString(description) + "\", \"last_update\":\"\",\"stores\":[]}]}";
 
   // Add product to list
   product_from_json = Product(json_string);
@@ -234,6 +289,59 @@ void ProductCategory::addEntry() {
   file.open(folderPath + "/" + category_name + "_" + barcode_number + ".json");
   file << json_string;
   file.close();
+}
+
+string ProductCategory::getSeriesTitleFromUser() {
+  string series;
+  string temp;
+  string json_string = "";
+  char choice = ' ';
+  bool is_title_confirmed = false;
+  cout << "Input Series: ";
+  getline(cin, series);
+
+  if (!seriesTitleExists(series)) {
+    while (!is_title_confirmed) {
+      cout << "This series name does not exist yet. Do you want to see all existing series (e), enter a different series name (n), or keep the series name you entered (k)? ";
+      cin >> choice;
+      getline(cin, temp); // Prevent program from skipping inputs.
+
+      switch(choice) {
+        case 'e':
+          printAllSeries();
+          break;
+        case 'n':
+          cout << "Input Series: ";
+          getline(cin, series);
+          is_title_confirmed = seriesTitleExists(series);
+          break;
+        case 'k':
+          is_title_confirmed = true;
+          break;
+        default:
+          cout << "Entry not recognized. Please try again." << endl;
+      }
+    }
+  }
+
+  for (int i = 0; i < series.length(); i++) {
+    json_string = json_string + string(1, tolower(series[i]));
+  }
+  return(json_string);
+}
+
+string ProductCategory::sanitizeString(string string_to_sanitize) {
+  string return_string = regex_replace(string_to_sanitize, regex("\""), "\"\"");
+  return regex_replace(return_string, regex(":"), ";");
+}
+
+void ProductCategory::printAllSeries() {
+  list<string>::iterator it;
+
+  for(it = list_of_series_titles.begin(); it != list_of_series_titles.end(); it++) {
+    cout << (*it) << endl;
+  }
+  cout << endl;
 }
 
 void ProductCategory::printSearchResults(list<Product> search_results, char mode) {

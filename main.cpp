@@ -120,7 +120,6 @@ int main(int argc, const char* argv[]) {
     if (entry->d_type == DT_DIR && (entry->d_name)[0] != '.') {
       string folder_string(entry->d_name);
       json_folder_names.push_back(folder_string);
-      // TODO: Sort these folder names before displaying them.
     }
 
     entry = readdir(dir);
@@ -128,6 +127,7 @@ int main(int argc, const char* argv[]) {
 
   closedir(dir);
 
+  json_folder_names.sort(&ProductCategory::isStringFirstInAlphabet);
   list<string>::iterator it;
 
   for(it = json_folder_names.begin(); it != json_folder_names.end(); it++){
