@@ -317,6 +317,7 @@ string ProductCategory::getSeriesTitleFromUser() {
           break;
         case 'k':
           is_title_confirmed = true;
+          list_of_series_titles.push_back(series);
           break;
         default:
           cout << "Entry not recognized. Please try again." << endl;
